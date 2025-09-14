@@ -1,10 +1,26 @@
+import { relations } from "drizzle-orm";
 import { pgTable, text, timestamp } from "drizzle-orm/pg-core";
+
+import { commentsTable } from "./comments";
+import { postsTable } from "./posts";
+import { commentsUpvoteTable, postUpvoteTable } from "./upvote";
 
 export const userTable = pgTable("user", {
   id: text("id").primaryKey(),
   username: text("username").notNull().unique(),
   password_hash: text("password_hash").notNull(),
 });
+
+export const userRelations = relations(userTable, ({ many }) => ({
+  posts: many(postsTable, { relationName: "author" }),
+  comments: many(commentsTable, { relationName: "author" }),
+  postUpvotes: many(postUpvoteTable, {
+    relationName: "postUpvotes",
+  }),
+  commentUpvotes: many(commentsUpvoteTable, {
+    relationName: "commentUpvotes",
+  }),
+}));
 
 export const sessionTable = pgTable("session", {
   id: text("id").primaryKey(),
